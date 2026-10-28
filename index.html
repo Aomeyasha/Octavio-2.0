@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Las Aventuras Submarinas del Capitán Octavio</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cartoon-yellow': '#FFDE59',
+                        'cartoon-blue': '#00C2FF',
+                        'cartoon-deepblue': '#004B87',
+                        'cartoon-pink': '#FF66C4',
+                        'cartoon-coral': '#FF5757',
+                        'cartoon-green': '#7ED957',
+                        'cartoon-purple': '#8C52FF',
+                        'cartoon-dark': '#1E293B',
+                        'cartoon-sand': '#FFE8A3'
+                    },
+                    boxShadow: {
+                        'cartoon': '4px 4px 0px #000000',
+                        'cartoon-lg': '6px 6px 0px #000000',
+                        'cartoon-sm': '2px 2px 0px #000000'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .cartoon-border {
+            border: 3px solid #000000;
+        }
+        .cartoon-border-lg {
+            border: 4px solid #000000;
+        }
+        @keyframes float-bubble {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .animate-bubble {
+            animation: float-bubble 3.5s ease-in-out infinite;
+        }
+        @keyframes pulse-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-bounce-soft {
+            animation: pulse-bounce 2s infinite;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFE8A3;
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF5757;
+            border-radius: 8px;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-cartoon-blue via-cartoon-deepblue to-slate-900 text-slate-900 min-h-screen flex flex-col justify-between p-2 sm:p-4 overflow-x-hidden">
+
+    <!-- OVERLAY START / BIOS SCREEN -->
+    <div id="bios-screen" class="fixed inset-0 z-50 bg-cartoon-deepblue flex flex-col items-center justify-center p-4 text-center">
+        <div class="max-w-xl w-full bg-cartoon-yellow cartoon-border-lg rounded-3xl p-6 shadow-cartoon-lg relative overflow-hidden animate-bounce-soft">
+            <div class="absolute -top-4 -left-4 w-16 h-16 bg-white/40 rounded-full border-2 border-black animate-bubble"></div>
+            <div class="absolute top-8 -right-4 w-12 h-12 bg-white/40 rounded-full border-2 border-black animate-bubble" style="animation-delay: 1s;"></div>
+            
+            <span class="inline-block bg-cartoon-coral text-white font-black text-xs sm:text-sm uppercase tracking-widest px-4 py-1.5 rounded-full cartoon-border mb-3 shadow-cartoon-sm">
+                🚢 BATISCAFO OCTO-1 • SISTEMA DIDÁCTICO
+            </span>
+
+            <h1 class="text-3xl sm:text-5xl font-black text-cartoon-deepblue drop-shadow-md mb-2 leading-tight uppercase">
+                Las Aventuras del<br><span class="text-cartoon-pink drop-shadow-[2px_2px_0px_#000]">Capitán Octavio</span> 🐙
+            </h1>
+            
+            <p class="text-slate-800 font-bold text-sm sm:text-base mb-6 bg-white/80 p-3 rounded-2xl cartoon-border">
+                ¡Sumérgete con Octavio para resolver los enigmas matemáticos del océano usando los 5 Principios de Conteo, Sumas y Restas! 🌊⭐
+            </p>
+
+            <button id="btn-start-game" onclick="startGame()" class="w-full bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xl sm:text-2xl py-4 px-6 rounded-2xl cartoon-border shadow-cartoon transform active:translate-y-1 transition-all flex items-center justify-center gap-3">
+                <span>🚀 ¡ZARPAR A LA AVENTURA!</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="max-w-7xl w-full mx-auto flex flex-col gap-3">
+
+        <!-- 1. HUD SUPERIOR CARTOON -->
+        <header class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-stretch">
+            
+            <!-- BARRA 1: SUPERVIVENCIA -->
+            <div class="md:col-span-3 bg-cartoon-sand cartoon-border rounded-2xl p-2.5 shadow-cartoon flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-1 leading-none">
+                    <span class="text-[10px] sm:text-[11px] font-black text-slate-800 uppercase tracking-wider shrink-0">❤️ SUPERVIVENCIA</span>
+                    <span id="hearts-count-text" class="text-[11px] font-black text-cartoon-coral shrink-0 ml-1">3 / 3</span>
+                </div>
+                <div id="hearts-container" class="flex items-center gap-2 justify-center bg-white/80 py-1.5 px-3 rounded-xl cartoon-border">
+                    <span class="text-2xl animate-bounce-soft">❤️</span>
+                    <span class="text-2xl animate-bounce-soft" style="animation-delay: 0.2s;">❤️</span>
+                    <span class="text-2xl animate-bounce-soft" style="animation-delay: 0.4s;">❤️</span>
+                </div>
+            </div>
+
+            <!-- BARRA 2: NIVEL Y PRINCIPIO -->
+            <div class="md:col-span-6 bg-cartoon-yellow cartoon-border rounded-2xl p-2.5 shadow-cartoon flex flex-col justify-between overflow-hidden">
+                <div class="flex justify-between items-center gap-2">
+                    <span id="hud-mission-tag" class="text-[10px] sm:text-[11px] font-black text-cartoon-deepblue uppercase bg-white/90 px-2.5 py-1 rounded-full cartoon-border truncate max-w-[240px]">
+                        MISIÓN 1: ¡TOCA Y CUENTA!
+                    </span>
+                    <div id="stars-container" class="flex gap-1 text-sm text-amber-500 shrink-0">
+                        ⭐ ⭐ ⭐
+                    </div>
+                </div>
+                <h2 id="hud-principle-title" class="text-xs sm:text-sm font-black text-slate-900 truncate mt-1">
+                    Principio 1: Correspondencia Uno a Uno
+                </h2>
+            </div>
+
+            <!-- BARRA 3: CONTROL DE BATISCAFO Y BITÁCORA -->
+            <div class="md:col-span-3 bg-cartoon-pink cartoon-border rounded-2xl p-2.5 shadow-cartoon flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-1 leading-none">
+                    <span class="text-[10px] sm:text-[11px] font-black text-slate-900 uppercase tracking-wider">🎛️ CONTROL</span>
+                    <span id="control-percent-text" class="text-[11px] font-black text-slate-900">100%</span>
+                </div>
+                <div class="w-full bg-white/80 h-3 rounded-full cartoon-border overflow-hidden p-0.5 mb-1.5">
+                    <div id="control-bar-fill" class="bg-cartoon-green h-full rounded-full transition-all duration-500" style="width: 100%;"></div>
+                </div>
+                <button onclick="toggleDatabankModal(true)" class="w-full bg-cartoon-purple hover:bg-purple-600 text-white font-black text-xs py-1 rounded-xl cartoon-border shadow-cartoon-sm flex items-center justify-center gap-1 transition-transform active:scale-95">
+                    📖 BITÁCORA
+                </button>
+            </div>
+        </header>
+
+        <!-- 2. WORKSPACE DE JUEGO & PANEL DE ANÁLISIS -->
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+            
+            <!-- PANEL IZQUIERDO: VISUAL NOVEL & AVATAR DE CAPITÁN OCTAVIO PIRATA (7 COLS) -->
+            <section class="lg:col-span-7 flex flex-col gap-3">
+                
+                <!-- SCENE CONTAINER WITH DYNAMIC BACKGROUND -->
+                <div id="scene-canvas-card" class="bg-cartoon-blue cartoon-border-lg rounded-3xl p-3 sm:p-4 shadow-cartoon flex flex-col justify-between relative overflow-hidden min-h-[380px] sm:min-h-[420px]">
+                    
+                    <!-- TOP BADGES -->
+                    <div class="flex justify-between items-center gap-2 relative z-10">
+                        <div id="scene-location" class="bg-cartoon-coral text-white font-black text-xs px-3 py-1.5 rounded-2xl cartoon-border shadow-cartoon-sm flex items-center gap-1.5 max-w-[65%] truncate">
+                            📍 Arrecife de Coral Secreto
+                        </div>
+                        <div id="scene-step-badge" class="bg-cartoon-yellow text-slate-900 font-black text-xs px-3 py-1.5 rounded-2xl cartoon-border shadow-cartoon-sm shrink-0">
+                            Aventura 1 de 7
+                        </div>
+                    </div>
+
+                    <!-- NUEVA IMAGEN DEL CAPITÁN OCTAVIO PIRATA -->
+                    <div class="my-auto py-2 flex flex-col items-center justify-center relative z-10 gap-2">
+                        <!-- Speech Bubble above Octavio -->
+                        <div id="octavio-speech-bubble" class="bg-white cartoon-border rounded-2xl px-3 py-2 text-xs sm:text-sm font-black text-slate-800 shadow-cartoon text-center max-w-sm animate-bubble">
+                            ¡Un toquecito para cada ostra! 🐙
+                        </div>
+
+                        <!-- Contenedor con la imagen real de Octavio Pirata en el Barco -->
+                        <div id="octavio-avatar-container" class="w-48 sm:w-56 transition-transform duration-300">
+                            <div class="cartoon-border rounded-2xl overflow-hidden shadow-cartoon bg-sky-200">
+                                <!-- Reemplaza 'ruta/a/tu/imagen.jpg' por el enlace o nombre local de tu imagen si la descargas, 
+                                     o usa directamente la URL de la fuente de la imagen -->
+                                <img src="https://images.unsplash.com" data-original-src="image_1ff7e5.jpg" alt="Capitán Octavio Pirata" class="w-full h-auto object-cover max-h-44 sm:max-h-52">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DIALOGUE BOX CARTOON -->
+                    <div class="bg-white cartoon-border rounded-2xl p-3 sm:p-4 shadow-cartoon relative z-10 mb-1">
+                        <div class="flex items-center gap-2 mb-2 border-b border-slate-200 pb-2">
+                            <span class="w-3 h-3 bg-cartoon-coral rounded-full cartoon-border inline-block shrink-0"></span>
+                            <h3 id="dialogue-speaker" class="text-xs sm:text-sm font-black text-cartoon-coral uppercase tracking-wider block leading-none">
+                                CAPITÁN OCTAVIO
+                            </h3>
+                        </div>
+                        <p id="dialogue-text" class="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed min-h-[48px] pt-1">
+                            ¡Cargando historia submarina...
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- OPTIONS CONTAINER -->
+                <div id="options-container" class="flex flex-col gap-2">
+                    <!-- Dynamic Decision Buttons generated in JS -->
+                </div>
+
+            </section>
+
+            <!-- PANEL DERECHO: ANÁLISIS DIDÁCTICO & CRÍTICO + PIZARRA + DEMOSTRACIÓN (5 COLS) -->
+            <section class="lg:col-span-5 flex flex-col gap-3">
+                
+                <div class="bg-cartoon-sand cartoon-border-lg rounded-3xl p-3.5 sm:p-4 shadow-cartoon flex flex-col gap-3">
+                    
+                    <!-- HEADING -->
+                    <div class="border-b-4 border-black pb-2 flex items-center justify-between">
+                        <h2 class="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-1.5">
+                            <span>🧠</span> ANÁLISIS DIDÁCTICO & CRÍTICO
+                        </h2>
+                        <span class="bg-cartoon-purple text-white text-[10px] font-black px-2 py-0.5 rounded-full cartoon-border shrink-0">1.º PRIMARIA</span>
+                    </div>
+
+                    <!-- PEDAGOGICAL REFLECTION -->
+                    <div class="bg-white/90 cartoon-border rounded-2xl p-2.5 text-xs leading-snug">
+                        <span id="pedagogy-principle-tag" class="font-black text-cartoon-purple block uppercase text-[10px] mb-1">
+                            PRINCIPIO: CORRESPONDENCIA UNO A UNO
+                        </span>
+                        <p id="pedagogy-analysis-text" class="text-slate-800 font-bold text-[11px]">
+                            Para niños de 6 a 7 años, tocar o señalar cada objeto asignando una sola palabra numérica evita saltar elementos o contarlos dos veces.
+                        </p>
+                    </div>
+
+                    <!-- PIZARRA MÁGICA DE TRAZOS (CANVAS) -->
+                    <div class="bg-slate-900 cartoon-border rounded-2xl p-2.5 flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-white text-xs font-black">
+                            <span class="flex items-center gap-1 text-cartoon-yellow text-[11px]">✏️ PIZARRA DE TRAZOS Y NÚMEROS</span>
+                            <button onclick="clearBoardCanvas()" class="bg-cartoon-coral hover:bg-red-500 text-white px-2 py-0.5 rounded-lg cartoon-border text-[10px] font-black transition-transform active:scale-95">
+                                🗑️ LIMPIAR
+                            </button>
+                        </div>
+                        
+                        <div class="relative w-full h-28 bg-slate-800 rounded-xl cartoon-border overflow-hidden touch-none">
+                            <canvas id="board-canvas" class="w-full h-full cursor-crosshair"></canvas>
+                        </div>
+
+                        <!-- COLOR PICKERS -->
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-[10px] text-slate-300 font-bold">Colores:</span>
+                            <div class="flex gap-2">
+                                <button onclick="setBoardColor('#FFDE59')" class="w-5 h-5 rounded-full bg-cartoon-yellow cartoon-border transform active:scale-110"></button>
+                                <button onclick="setBoardColor('#00C2FF')" class="w-5 h-5 rounded-full bg-cartoon-blue cartoon-border transform active:scale-110"></button>
+                                <button onclick="setBoardColor('#7ED957')" class="w-5 h-5 rounded-full bg-cartoon-green cartoon-border transform active:scale-110"></button>
+                                <button onclick="setBoardColor('#FF66C4')" class="w-5 h-5 rounded-full bg-cartoon-pink cartoon-border transform active:scale-110"></button>
+                                <button onclick="setBoardColor('#FFFFFF')" class="w-5 h-5 rounded-full bg-white cartoon-border transform active:scale-110"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEMOSTRACIÓN CONCRETA INTERACTIVA (SANDBOX) -->
+                    <div class="bg-white cartoon-border rounded-2xl p-3 flex flex-col gap-2">
+                        <div class="flex justify-between items-center border-b-2 border-black pb-1.5 gap-2">
+                            <span class="text-xs font-black text-slate-900 uppercase flex items-center gap-1">
+                                🧮 DEMOSTRACIÓN CONCRETA
+                            </span>
+                            <span id="sandbox-counter-badge" class="bg-cartoon-blue text-black font-black text-[10px] px-2 py-0.5 rounded-full cartoon-border shrink-0">
+                                Contados: 0
+                            </span>
+                        </div>
+                        
+                        <p id="sandbox-instruction" class="text-[11px] font-bold text-slate-700">
+                            Toca o haz clic en los objetos para practicar directamente:
+                        </p>
+
+                        <!-- DYNAMIC INTERACTIVE GRID AREA -->
+                        <div id="sandbox-interactive-area" class="min-h-[100px] bg-sky-50 rounded-xl cartoon-border p-2 flex flex-col justify-center items-center gap-2">
+                            <!-- Dynamic Content Rendered Here -->
+                        </div>
+
+                        <button id="btn-reset-sandbox" onclick="resetCurrentSandbox()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-800 font-black text-xs py-1.5 rounded-xl cartoon-border transition-colors">
+                            🔄 Reiniciar Práctica Concreta
+                        </button>
+                    </div>
+
+                    <!-- PROYECCIÓN DE LA DECISIÓN / WARNING BOX -->
+                    <div id="projection-box" class="bg-cartoon-coral text-white cartoon-border rounded-2xl p-3 shadow-cartoon-sm flex items-start gap-2">
+                        <span class="text-lg">⚠️</span>
+                        <div class="text-xs font-bold leading-tight">
+                            <span class="font-black uppercase block text-[10px] text-yellow-200 mb-0.5">PROYECCIÓN DE DECISIÓN:</span>
+                            <span id="projection-text">Pasa el cursor o toca una opción para ver la consecuencia antes de elegir.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL: BITÁCORA DATABANK (MANUAL DE PRINCIPIOS) -->
+    <div id="databank-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-3">
+        <div class="bg-cartoon-yellow cartoon-border-lg rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-cartoon-lg flex flex-col max-h-[90vh]">
+            
+            <div class="flex justify-between items-center border-b-4 border-black pb-3 mb-3">
+                <h2 class="text-lg sm:text-xl font-black text-cartoon-deepblue uppercase flex items-center gap-2">
+                    📖 BITÁCORA: PRINCIPIOS DE CONTEO
+                </h2>
+                <button onclick="toggleDatabankModal(false)" class="bg-cartoon-coral text-white font-black px-3 py-1 rounded-xl cartoon-border shadow-cartoon-sm hover:bg-red-600 transition-transform active:scale-95 text-xs">
+                    ❌ CERRAR
+                </button>
+            </div>
+
+            <div class="overflow-y-auto space-y-3 pr-1 text-slate-800 text-xs font-bold">
+                
+                <div class="bg-white cartoon-border rounded-2xl p-3 shadow-cartoon-sm">
+                    <h3 class="text-cartoon-purple font-black text-xs uppercase">1. Correspondencia Uno a Uno ☝️</h3>
+                    <p class="mt-1">A cada elemento del conjunto se le asigna una y solo una etiqueta numérica ("uno", "dos", "tres"). No se salta ninguno ni se repite.</p>
+                </div>
+
+                <div class="bg-white cartoon-border rounded-2xl p-3 shadow-cartoon-sm">
+                    <h3 class="text-cartoon-purple font-black text-xs uppercase">2. Orden Estable 🔢</h3>
+                    <p class="mt-1">Las palabras numéricas deben recitarse siempre en el mismo orden repetible (1, 2, 3, 4, 5...). No se pueden cambiar los nombres de secuencia.</p>
+                </div>
+
+                <div class="bg-white cartoon-border rounded-2xl p-3 shadow-cartoon-sm">
+                    <h3 class="text-cartoon-purple font-black text-xs uppercase">3. Cardinalidad 🔮</h3>
+                    <p class="mt-1">El último número dicho al contar una colección indica la cantidad total de elementos que contiene el conjunto completo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let audioCtx = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function playSoundBubble() {
+        try {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.12);
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
+        } catch (e) {}
+    }
+
+    function playSoundWrong() {
+        try {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.25);
+
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+        } catch (e) {}
+    }
+
+    /* ------------------------------------------------------------------
+       GAME STATE & NARRATIVE TREE
+       ------------------------------------------------------------------ */
+    const gameState = {
+        hearts: 3,
+        control: 100,
+        stars: 3,
+        currentSceneId: 'scene_1',
+        sandboxState: {
+            counted: 0,
+            items: []
+        }
+    };
+
+    const sceneTree = {
+        'scene_1': {
+            location: '📍 Arrecife de Coral Secreto',
+            stepBadge: 'Aventura 1 de 7',
+            missionTag: 'MISIÓN 1: CORRESPONDENCIA',
+            principleTitle: 'Principio 1: Correspondencia Uno a Uno',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡Un toquecito para cada ostra! 🐙',
+            dialogue: '¡Grap-grap! 🌊 ¡Miren esas ostras mágicas brillando! Para abrir la puerta del arrecife debemos darles un toquecito de luz, pero ¡ojo! A cada ostra le toca solo UN toque, sin saltarnos ninguna y sin repetir. ¿Cómo las contamos, marineros?',
+            pedagogyTag: 'PRINCIPIO 1: CORRESPONDENCIA UNO A UNO',
+            pedagogyText: 'Para niños de 6 a 7 años, tocar o señalar cada objeto asignando una sola palabra numérica ("uno", "dos", "tres") evita omitir elementos o contarlos dos veces.',
+            interactiveType: 'one_to_one',
+            items: ['Ostra Rosa', 'Ostra Azul', 'Ostra Verde', 'Ostra Amarilla'],
+            options: [
+                {
+                    text: '✨ Tocar cada ostra exactamente una vez diciendo: 1, 2, 3, 4.',
+                    projection: '🟢 ¡Perfecto! La puerta del arrecife se abrirá suavemente.',
+                    correct: true,
+                    nextScene: 'scene_2',
+                    feedback: '¡Súper bien! Cada ostra recibió su número correspondido.'
+                },
+                {
+                    text: '⚡ Tocar la misma ostra dos veces muy rápido para acabar antes.',
+                    projection: '🔴 ¡Cuidado! Contarás una ostra doble y descalibrarás el sonar.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_1',
+                    feedback: '¡Uy! Le diste dos toques a la misma ostra. ¡Recuerda: uno para cada una!'
+                }
+            ]
+        },
+
+        'scene_2': {
+            location: '📍 Abismo Neón de los Peces',
+            stepBadge: 'Aventura 2 de 7',
+            missionTag: 'MISIÓN 2: ORDEN ESTABLE',
+            principleTitle: 'Principio 2: Orden Estable',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡El baile de los números! 🎶',
+            dialogue: '¡Caracolas cantarinas! 🐟 Los peces neón están haciendo una coreografía. Para coordinar su baile, debemos recitar los números en la secuencia mágica correcta. ¿Qué canción de números debemos cantarles?',
+            pedagogyTag: 'PRINCIPIO 2: ORDEN ESTABLE',
+            pedagogyText: 'La secuencia de palabras numéricas (1, 2, 3, 4, 5...) debe ser siempre idéntica y repetible. Cambiar el orden rompe el principio de conteo.',
+            interactiveType: 'stable_order',
+            items: ['Pez #1', 'Pez #2', 'Pez #3', 'Pez #4', 'Pez #5'],
+            options: [
+                {
+                    text: '🎵 Cantar en orden estable: "Uno, Dos, Tres, Cuatro, Cinco".',
+                    projection: '🟢 Los peces neón bailarán en perfecta armonía.',
+                    correct: true,
+                    nextScene: 'scene_3',
+                    feedback: '¡Excelente! La secuencia numérica siempre sigue el mismo orden.'
+                },
+                {
+                    text: '🔀 Cantar mezclado: "Uno, Tres, Cinco, Dos, Cuatro".',
+                    projection: '🔴 Los peces se confundirán y chocarán entre sí.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_2',
+                    feedback: '¡Oh no! Los números se desordenaron. Debe ser 1, 2, 3, 4, 5.'
+                }
+            ]
+        },
+
+        'scene_3': {
+            location: '📍 Palacio del Dragón de Mar',
+            stepBadge: 'Aventura 3 de 7',
+            missionTag: 'MISIÓN 3: CARDINALIDAD',
+            principleTitle: 'Principio 3: Cardinalidad',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡El último número es el total! 🔮',
+            dialogue: '¡Caracolas sagradas! 🐚 El Rey Dragón de Mar nos pregunta: "Si cuentas las perlas brillantes una a una... 1, 2, 3, 4, 5... ¿cuántas perlas tienes en TOTAL para abrir el cofre?". ¡Tócalas a la derecha para practicar!',
+            pedagogyTag: 'PRINCIPIO 3: CARDINALIDAD',
+            pedagogyText: 'El último número nombrado al contar una colección indica la cantidad total de elementos. Es la transición clave hacia la representación del total.',
+            interactiveType: 'cardinality',
+            items: ['Perla 1', 'Perla 2', 'Perla 3', 'Perla 4', 'Perla 5'],
+            options: [
+                {
+                    text: '✨ Responder: "¡Hay 5 perlas en total!" (El último número dicho).',
+                    projection: '🟢 ¡El cofre del dragón se abrirá de par en par!',
+                    correct: true,
+                    nextScene: 'scene_4',
+                    feedback: '¡Exacto! El 5 fue el último número contado, así que representa el total.'
+                },
+                {
+                    text: '❌ Volver a contar todo sin decir el total: "Hay 1 perla".',
+                    projection: '🔴 El dragón se pondrá triste porque olvidaste la suma total.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_3',
+                    feedback: '¡Recuerda! El ÚLTIMO número que dices al contar es el total absoluto.'
+                }
+            ]
+        },
+
+        'scene_4': {
+            location: '📍 Valle de las Estrellas Curiosas',
+            stepBadge: 'Aventura 4 de 7',
+            missionTag: 'MISIÓN 4: ABSTRACCIÓN',
+            principleTitle: 'Principio 4: Abstracción',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡Todo se puede contar! ⭐',
+            dialogue: '¡Por los bigotes del calamar! 🦑 Hay 2 estrellas de mar, 1 caracol y 2 pececitos. ¡Son totalmente diferentes! ¿Podemos contarlos todos juntos como un solo grupo de criaturitas?',
+            pedagogyTag: 'PRINCIPIO 4: ABSTRACCIÓN',
+            pedagogyText: 'Los principios de conteo se aplican a cualquier conjunto de objetos, sin importar si son heterogéneos o de diferentes formas y colores.',
+            interactiveType: 'abstraction',
+            items: ['⭐ Estrella', '⭐ Estrella', '🐚 Caracol', '🐟 Pez', '🐟 Pez'],
+            options: [
+                {
+                    text: '🌟 Sí, contamos todo junto: "1, 2, 3, 4, 5 amigos marinos".',
+                    projection: '🟢 ¡Comprendes que la naturaleza de los objetos no impide contarlos!',
+                    correct: true,
+                    nextScene: 'scene_5',
+                    feedback: '¡Genial! No importa si son diferentes, todo se puede contar junto.'
+                },
+                {
+                    text: '🚫 No se puede porque los peces no son estrellas de mar.',
+                    projection: '🔴 Dejarás a los pececitos fuera del conteo del grupo.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_4',
+                    feedback: '¡Sí se puede! La regla de abstracción permite contar objetos variados.'
+                }
+            ]
+        },
+
+        'scene_5': {
+            location: '📍 Jardín de las Gorgonias',
+            stepBadge: 'Aventura 5 de 7',
+            missionTag: 'MISIÓN 5: IRRELEVANCIA EN EL ORDEN',
+            principleTitle: 'Principio 5: Irrelevancia en el Orden',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡De izquierda a derecha o al revés! 🔀',
+            dialogue: '¡Sopla el viento del océano! 💨 Tenemos 4 conchas alineadas. Si las contamos de izquierda a derecha nos da 4. ¿And si las empezamos a contar de derecha a izquierda o en desorden?',
+            pedagogyTag: 'PRINCIPIO 5: IRRELEVANCIA EN EL ORDEN',
+            pedagogyText: 'El orden en que se cuentan los objetos no altera el resultado final, siempre y cuando se respete la correspondencia uno a uno.',
+            interactiveType: 'order_irrelevance',
+            items: ['Concha A', 'Concha B', 'Concha C', 'Concha D'],
+            options: [
+                {
+                    text: '🔀 ¡Siguen siendo 4 conchas! El orden de contar no cambia la cantidad.',
+                    projection: '🟢 ¡Demuestras dominio completo de los 5 principios de conteo!',
+                    correct: true,
+                    nextScene: 'scene_6',
+                    feedback: '¡Fantástico! El orden de conteo no altera el resultado final.'
+                },
+                {
+                    text: '❓ Cambia el número porque empezamos por otra concha.',
+                    projection: '🔴 Te confundirás pensando que aparecieron nuevas conchas.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_5',
+                    feedback: '¡No cambia! Aunque cuentes en desorden, la cantidad final es idéntica.'
+                }
+            ]
+        },
+
+        'scene_6': {
+            location: '📍 Estación de Rescate Submarino',
+            stepBadge: 'Aventura 6 de 7',
+            missionTag: 'MISIÓN 6: SUMAR (AGREGAR)',
+            principleTitle: 'Operación: Suma (+1)',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡Llegan más tanques de aire! 🫧',
+            dialogue: '¡Genial! Ya dominamos los 5 principios. Ahora, en el batiscafo tenemos 3 tanques de oxígeno 🫧🫧🫧 y los delfines nos traen 2 tanques más (+2). ¿Cuántos tanques tenemos AHORA en total?',
+            pedagogyTag: 'OPERACIÓN: SUMAR (AGREGAR)',
+            pedagogyText: 'La suma en 1.º de primaria se comprende como la acción concreta de AGREGAR objetos a un conjunto inicial y re-contar la nueva colección total.',
+            interactiveType: 'addition',
+            baseCount: 3,
+            options: [
+                {
+                    text: '➕ Sumar: 3 + 2 = ¡Tenemos 5 tanques de aire!',
+                    projection: '🟢 El batiscafo recargará sus reservas de oxígeno al máximo.',
+                    correct: true,
+                    nextScene: 'scene_7',
+                    feedback: '¡Excelente suma! Agregar 2 a 3 nos da exactamente 5.'
+                },
+                {
+                    text: '➖ Decir que nos quedan solo 1 tanque de aire.',
+                    projection: '🔴 ¡Error! Restaste en lugar de agregar los tanques nuevos.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_6',
+                    feedback: '¡Atención! Cuando te DAN más cosas, estás SUMANDO (+).'
+                }
+            ]
+        },
+
+        'scene_7': {
+            location: '📍 Cámara del Tesoro Submarino',
+            stepBadge: 'Aventura 7 de 7',
+            missionTag: 'MISIÓN FINAL: RESTAR (QUITAR)',
+            principleTitle: 'Operación: Resta (-1)',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡Liberando las pesas para flotar! ⚓',
+            dialogue: '¡Llegamos al final, equipo! 🏆 Para subir a la superficie a celebrar, tenemos 5 pesas atadas al submarino ⚓⚓⚓⚓⚓ y necesitamos QUITAR 2 pesas (-2). ¿Cuántas pesas quedan atadas?',
+            pedagogyTag: 'OPERACIÓN: RESTAR (QUITAR)',
+            pedagogyText: 'La resta se afianza conceptualmente al QUITAR o sustraer elementos de un grupo concreto y verificar la cantidad remanente.',
+            interactiveType: 'subtraction',
+            baseCount: 5,
+            options: [
+                {
+                    text: '➖ Restar: 5 - 2 = ¡Quedan 3 pesas!',
+                    projection: '🟢 ¡El Batiscafo Octo-1 subirá a la superficie entre aplausos!',
+                    correct: true,
+                    nextScene: 'win_scene',
+                    feedback: '¡PERFECTO! Quitaste 2 pesas a 5 y el resultado fue 3.'
+                },
+                {
+                    text: '➕ Sumar: Decir que ahora hay 7 pesas.',
+                    projection: '🔴 ¡Error! El submarino se volverá más pesado y se hundirá.',
+                    correct: false,
+                    damage: 1,
+                    nextScene: 'scene_7',
+                    feedback: '¡Cuidado! Al QUITAR cosas, la cantidad disminuye (-).'
+                }
+            ]
+        },
+
+        'win_scene': {
+            location: '📍 Superficie del Océano • ¡VICTORIA!',
+            stepBadge: '¡MISIÓN CUMPLIDA!',
+            missionTag: '¡MÁSTER EN MATEMÁTICAS!',
+            principleTitle: '¡Felicidades! Completaste la Aventura',
+            speaker: 'CAPITÁN OCTAVIO 🐙',
+            speechBubble: '¡Somos un gran equipo! 🎉',
+            dialogue: '¡YUPIII! 🥳 ¡Lo logramos, exploradores! Dominamos los 5 Principios de Conteo y resolvimos las Sumas y Restas del océano. ¡Eres un héroe matemático marino!',
+            pedagogyTag: 'LOGRO DIDÁCTICO COMPLETO',
+            pedagogyText: 'Has completado la trayectoria pedagógica desde la manipulación individual (correspondencia) hasta las operaciones de agregación y sustracción.',
+            interactiveType: 'minigame_bubbles',
+            options: [
+                {
+                    text: '🔄 ¡Jugar otra vez desde el principio!',
+                    projection: '✨ Reinicia la expedición para practicar de nuevo.',
+                    correct: true,
+                    nextScene: 'scene_1',
+                    feedback: '¡A por otra gran aventura submarina!'
+                }
+            ]
+        }
+    };
+
+    function startGame() {
+        playSoundBubble();
+        document.getElementById('bios-screen').classList.add('hidden');
+        gameState.hearts = 3;
+        gameState.control = 100;
+        gameState.currentSceneId = 'scene_1';
+        updateHUD();
+        renderScene('scene_1');
+    }
+
+    function updateHUD() {
+        const container = document.getElementById('hearts-container');
+        if (container) {
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement('span');
+                heart.className = 'text-2xl animate-bounce-soft';
+                heart.style.animationDelay = `${i * 0.2}s`;
+                heart.innerText = i < gameState.hearts ? '❤️' : '🖤';
+                container.appendChild(heart);
+            }
+        }
+        
+        const heartsText = document.getElementById('hearts-count-text');
+        if (heartsText) {
+            heartsText.innerText = `${gameState.hearts} / 3`;
+        }
+
+        const controlText = document.getElementById('control-percent-text');
+        if (controlText) {
+            controlText.innerText = `${gameState.control}%`;
+        }
+        
+        const controlBar = document.getElementById('control-bar-fill');
+        if (controlBar) {
+            controlBar.style.width = `${gameState.control}%`;
+            if (gameState.control < 40) {
+                controlBar.className = 'bg-cartoon-coral h-full rounded-full transition-all duration-500';
+            } else {
+                controlBar.className = 'bg-cartoon-green h-full rounded-full transition-all duration-500';
+            }
+        }
+    }
+
+    function renderScene(sceneId) {
+        const scene = sceneTree[sceneId];
+        if (!scene) return;
+
+        gameState.currentSceneId = sceneId;
+
+        document.getElementById('hud-mission-tag').innerText = scene.missionTag;
+        document.getElementById('hud-principle-title').innerText = scene.principleTitle;
+
+        document.getElementById('scene-location').innerText = scene.location;
+        document.getElementById('scene-step-badge').innerText = scene.stepBadge;
+        document.getElementById('octavio-speech-bubble').innerText = scene.speechBubble;
+
+        document.getElementById('dialogue-speaker').innerText = scene.speaker;
+        document.getElementById('dialogue-text').innerText = scene.dialogue;
+
+        document.getElementById('pedagogy-principle-tag').innerText = scene.pedagogyTag;
+        document.getElementById('pedagogy-analysis-text').innerText = scene.pedagogyText;
+
+        const optContainer = document.getElementById('options-container');
+        optContainer.innerHTML = '';
+
+        scene.options.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.className = 'w-full bg-white hover:bg-cartoon-yellow text-slate-900 font-black text-xs sm:text-sm p-3 rounded-2xl cartoon-border shadow-cartoon text-left flex items-center justify-between gap-2 transition-all transform active:translate-y-0.5';
+            btn.innerHTML = `
+                <span>${opt.text}</span>
+                <span class="bg-cartoon-blue text-black px-2 py-1 rounded-xl cartoon-border text-[10px] shrink-0">Elegir ➔</span>
+            `;
+
+            btn.onmouseenter = () => {
+                document.getElementById('projection-text').innerText = opt.projection;
+            };
+
+            btn.onclick = () => {
+                handleOptionClick(opt);
+            };
+
+            optContainer.appendChild(btn);
+        });
+
+        renderSandbox(scene);
+    }
+
+    function handleOptionClick(opt) {
+        if (opt.correct) {
+            playSoundBubble();
+            if (opt.nextScene === 'win_scene') {
+                playVictoryMelody();
+            }
+            renderScene(opt.nextScene);
+        } else {
+            playSoundWrong();
+            gameState.hearts = Math.max(0, gameState.hearts - (opt.damage || 1));
+            gameState.control = Math.max(10, gameState.control - 20);
+            updateHUD();
+
+            document.getElementById('projection-text').innerText = `❌ ${opt.feedback}`;
+
+            if (gameState.hearts === 0) {
+                setTimeout(() => {
+                    alert('💔 ¡El Batiscafo necesita reparaciones! Volviendo al inicio...');
+                    startGame();
+                }, 500);
+            }
+        }
+    }
+
+    function createPearlSVG(numberTag, isCounted = false) {
+        const glowEffect = isCounted ? 'filter: drop-shadow(0px 0px 8px #FFDE59);' : '';
+        const pearlColor = isCounted ? '#FFDE59' : '#F1F5F9';
+        return `
+            <div class="relative group transition-transform duration-200 hover:scale-105 active:scale-95 cursor-pointer flex flex-col items-center justify-center p-1">
+                <svg viewBox="0 0 100 90" class="w-14 h-14 sm:w-16 sm:h-16" style="${glowEffect}">
+                    <path d="M 10 50 Q 50 10 90 50 Q 50 85 10 50 Z" fill="#FF66C4" stroke="#000000" stroke-width="4"/>
+                    <path d="M 18 50 Q 50 22 82 50" fill="none" stroke="#000000" stroke-width="2.5" opacity="0.6"/>
+                    <path d="M 28 50 Q 50 30 72 50" fill="none" stroke="#000000" stroke-width="2" opacity="0.4"/>
+                    <circle cx="50" cy="50" r="22" fill="${pearlColor}" stroke="#000000" stroke-width="4"/>
+                    <circle cx="43" cy="43" r="6" fill="#FFFFFF" opacity="0.9"/>
+                </svg>
+                ${isCounted ? `
+                    <span class="absolute -top-1 -right-1 bg-cartoon-green text-black font-black text-[11px] px-2 py-0.5 rounded-full cartoon-border shadow-cartoon-sm animate-bounce-soft">
+                        #${numberTag}
+                    </span>
+                ` : `
+                    <span class="text-[10px] font-black text-slate-400 bg-white/80 px-1.5 py-0.5 rounded-md border border-slate-300 mt-1">
+                        Tocar 🔮
+                    </span>
+                `}
+            </div>
+        `;
+    }
+
+    function playVictoryMelody() {
+        try {
+            initAudio();
+            const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                }, idx * 150);
+            });
+        } catch (e) {}
+    }
+
+    function renderSandbox(scene) {
+        const container = document.getElementById('sandbox-interactive-area');
+        const counterBadge = document.getElementById('sandbox-counter-badge');
+        container.innerHTML = '';
+
+        gameState.sandboxState = { counted: 0, items: [] };
+
+        if (scene.interactiveType === 'cardinality') {
+            counterBadge.innerText = 'Contadas: 0 / 5';
+            document.getElementById('sandbox-instruction').innerText = 'Toca cada ostra con perla para contarla:';
+            
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 sm:grid-cols-5 gap-2 justify-items-center items-center w-full my-1';
+
+            const totalInputContainer = document.createElement('div');
+            totalInputContainer.className = 'mt-2 text-xs font-black text-slate-700 bg-slate-100 p-2.5 rounded-2xl cartoon-border text-center w-full transition-all duration-300 flex flex-col items-center gap-1.5';
+            totalInputContainer.innerHTML = `
+                <span class="text-[11px] font-black text-slate-600">🔮 Toca todas las perlas para habilitar la casilla del total:</span>
+                <input type="text" disabled placeholder="¿Total?" class="w-28 text-center font-black text-sm p-1.5 rounded-xl border-2 border-slate-300 bg-slate-200 text-slate-400 cursor-not-allowed">
+            `;
+
+            let pearlsCounted = 0;
+
+            scene.items.forEach((item, idx) => {
+                const pearlWrapper = document.createElement('div');
+                pearlWrapper.innerHTML = createPearlSVG(idx + 1, false);
+
+                pearlWrapper.onclick = () => {
+                    playSoundBubble();
+                    if (!pearlWrapper.dataset.counted) {
+                        pearlWrapper.dataset.counted = 'true';
+                        pearlsCounted++;
+                        gameState.sandboxState.counted = pearlsCounted;
+                        
+                        pearlWrapper.innerHTML = createPearlSVG(pearlsCounted, true);
+                        counterBadge.innerText = `Contadas: ${pearlsCounted} / 5`;
+
+                        if (pearlsCounted === scene.items.length) {
+                            totalInputContainer.className = 'mt-2 text-xs font-black text-cartoon-deepblue bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full animate-bounce-soft shadow-cartoon-sm flex flex-col items-center gap-2';
+                            totalInputContainer.innerHTML = `
+                                <label class="text-xs font-black text-slate-900 uppercase">
+                                    ✨ ¡Contaste todas! Escribe aquí cuántas perlas hay en total:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <input id="cardinality-user-input" type="number" min="0" max="99" placeholder="Escribe..." 
+                                        class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                                    <button id="btn-check-cardinality" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                                        Comprobar 🎯
+                                    </button>
+                                </div>
+                                <span id="cardinality-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                            `;
+
+                            setTimeout(() => {
+                                const inputElem = document.getElementById('cardinality-user-input');
+                                const btnCheck = document.getElementById('btn-check-cardinality');
+                                const feedback = document.getElementById('cardinality-feedback');
+
+                                if (btnCheck && inputElem) {
+                                    btnCheck.onclick = () => {
+                                        const val = parseInt(inputElem.value, 10);
+                                        if (val === 5) {
+                                            playSoundBubble();
+                                            feedback.innerText = '🎉 ¡CORRECTO! El último número contado (5) es la cantidad total.';
+                                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                                        } else {
+                                            playSoundWrong();
+                                            feedback.innerText = '❌ ¡Casi! Recuerda que el total es el último número que contaste (5).';
+                                            feedback.className = 'text-[11px] font-black text-rose-600';
+                                        }
+                                    };
+                                }
+                            }, 50);
+                        }
+                    }
+                };
+                grid.appendChild(pearlWrapper);
+            });
+
+            container.appendChild(grid);
+            container.appendChild(totalInputContainer);
+
+        } else if (scene.interactiveType === 'one_to_one') {
+            counterBadge.innerText = 'Contadas: 0 / 4';
+            document.getElementById('sandbox-instruction').innerText = 'Toca cada ostra una sola vez para darle su toque de luz:';
+            
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-2 sm:grid-cols-4 gap-2 justify-items-center items-center w-full my-1';
+
+            const totalInputContainer = document.createElement('div');
+            totalInputContainer.className = 'mt-2 text-xs font-black text-slate-700 bg-slate-100 p-2.5 rounded-2xl cartoon-border text-center w-full flex flex-col items-center gap-1.5';
+            totalInputContainer.innerHTML = `
+                <span class="text-[11px] font-black text-slate-600">✨ Toca las 4 ostras para activar la comprobación:</span>
+                <input type="text" disabled placeholder="¿Total?" class="w-28 text-center font-black text-sm p-1.5 rounded-xl border-2 border-slate-300 bg-slate-200 text-slate-400 cursor-not-allowed">
+            `;
+
+            let counted = 0;
+            scene.items.forEach((item, idx) => {
+                const itemWrapper = document.createElement('div');
+                itemWrapper.className = 'cursor-pointer p-1 transition-transform hover:scale-105 active:scale-95 flex flex-col items-center';
+                itemWrapper.innerHTML = `
+                    <div class="relative w-14 h-14 bg-cartoon-pink cartoon-border rounded-2xl flex items-center justify-center shadow-cartoon-sm">
+                        <span class="text-2xl">🦪</span>
+                        <span class="badge-num absolute -top-2 -right-2 bg-slate-300 text-slate-700 text-[10px] font-black px-1.5 py-0.5 rounded-full cartoon-border">
+                            Touch
+                        </span>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-800 mt-1">${item}</span>
+                `;
+
+                itemWrapper.onclick = () => {
+                    playSoundBubble();
+                    if (!itemWrapper.dataset.counted) {
+                        itemWrapper.dataset.counted = 'true';
+                        counted++;
+                        const badge = itemWrapper.querySelector('.badge-num');
+                        badge.className = 'badge-num absolute -top-2 -right-2 bg-cartoon-green text-black text-[10px] font-black px-1.5 py-0.5 rounded-full cartoon-border animate-bounce-soft';
+                        badge.innerText = `#${counted}`;
+                        counterBadge.innerText = `Contadas: ${counted} / 4`;
+
+                        if (counted === scene.items.length) {
+                            totalInputContainer.className = 'mt-2 text-xs font-black text-cartoon-deepblue bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full animate-bounce-soft shadow-cartoon-sm flex flex-col items-center gap-2';
+                            totalInputContainer.innerHTML = `
+                                <label class="text-xs font-black text-slate-900 uppercase">
+                                    ✨ ¡Correspondencia lista! Escribe el total de ostras contadas:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <input id="scene1-user-input" type="number" min="0" max="99" placeholder="¿Total?" 
+                                        class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                                    <button id="btn-check-scene1" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                                        Comprobar 🎯
+                                    </button>
+                                </div>
+                                <span id="scene1-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                            `;
+
+                            setTimeout(() => {
+                                const inputElem = document.getElementById('scene1-user-input');
+                                const btnCheck = document.getElementById('btn-check-scene1');
+                                const feedback = document.getElementById('scene1-feedback');
+                                if (btnCheck && inputElem) {
+                                    btnCheck.onclick = () => {
+                                        const val = parseInt(inputElem.value, 10);
+                                        if (val === 4) {
+                                            playSoundBubble();
+                                            feedback.innerText = '🎉 ¡CORRECTO! 4 ostras con correspondencia perfecta.';
+                                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                                        } else {
+                                            playSoundWrong();
+                                            feedback.innerText = '❌ Escribe 4, ya que diste un toque de luz a 4 ostras.';
+                                            feedback.className = 'text-[11px] font-black text-rose-600';
+                                        }
+                                    };
+                                }
+                            }, 50);
+                        }
+                    }
+                };
+                grid.appendChild(itemWrapper);
+            });
+
+            container.appendChild(grid);
+            container.appendChild(totalInputContainer);
+
+        } else if (scene.interactiveType === 'stable_order') {
+            counterBadge.innerText = 'Orden: 0 / 5';
+            document.getElementById('sandbox-instruction').innerText = 'Toca los peces neón estrictamente en orden numérico (1 ➔ 2 ➔ 3 ➔ 4 ➔ 5):';
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-5 gap-1.5 justify-items-center items-center w-full my-1';
+
+            const totalInputContainer = document.createElement('div');
+            totalInputContainer.className = 'mt-2 text-xs font-black text-slate-700 bg-slate-100 p-2.5 rounded-2xl cartoon-border text-center w-full flex flex-col items-center gap-1.5';
+            totalInputContainer.innerHTML = `
+                <span class="text-[11px] font-black text-slate-600">🎵 Completa la canción de números en orden:</span>
+                <input type="text" disabled placeholder="¿Total?" class="w-28 text-center font-black text-sm p-1.5 rounded-xl border-2 border-slate-300 bg-slate-200 text-slate-400 cursor-not-allowed">
+            `;
+
+            let expectedSeq = 1;
+
+            scene.items.forEach((item, idx) => {
+                const fishNum = idx + 1;
+                const fishWrapper = document.createElement('div');
+                fishWrapper.className = 'cursor-pointer p-1 transition-transform hover:scale-105 active:scale-95 flex flex-col items-center';
+                fishWrapper.innerHTML = `
+                    <div class="fish-card w-12 h-12 bg-cartoon-blue cartoon-border rounded-2xl flex flex-col items-center justify-center shadow-cartoon-sm">
+                        <span class="text-lg">🐟</span>
+                        <span class="text-[11px] font-black text-black">#${fishNum}</span>
+                    </div>
+                `;
+
+                fishWrapper.onclick = () => {
+                    if (fishNum === expectedSeq) {
+                        playSoundBubble();
+                        const card = fishWrapper.querySelector('.fish-card');
+                        card.className = 'fish-card w-12 h-12 bg-cartoon-green cartoon-border rounded-2xl flex flex-col items-center justify-center shadow-cartoon-sm animate-bounce-soft';
+                        counterBadge.innerText = `Orden: ${expectedSeq} / 5`;
+                        expectedSeq++;
+
+                        if (expectedSeq > 5) {
+                            totalInputContainer.className = 'mt-2 text-xs font-black text-cartoon-deepblue bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full animate-bounce-soft shadow-cartoon-sm flex flex-col items-center gap-2';
+                            totalInputContainer.innerHTML = `
+                                <label class="text-xs font-black text-slate-900 uppercase">
+                                    🎵 ¡Excelente secuencia! Escribe cuántos peces bailaron en orden:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <input id="scene2-user-input" type="number" min="0" max="99" placeholder="¿Total?" 
+                                        class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                                    <button id="btn-check-scene2" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                                        Comprobar 🎯
+                                    </button>
+                                </div>
+                                <span id="scene2-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                            `;
+
+                            setTimeout(() => {
+                                const inputElem = document.getElementById('scene2-user-input');
+                                const btnCheck = document.getElementById('btn-check-scene2');
+                                const feedback = document.getElementById('scene2-feedback');
+                                if (btnCheck && inputElem) {
+                                    btnCheck.onclick = () => {
+                                        const val = parseInt(inputElem.value, 10);
+                                        if (val === 5) {
+                                            playSoundBubble();
+                                            feedback.innerText = '🎉 ¡PERFECTO! Seguiste el orden estable 1, 2, 3, 4, 5.';
+                                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                                        } else {
+                                            playSoundWrong();
+                                            feedback.innerText = '❌ La respuesta correcta es 5.';
+                                            feedback.className = 'text-[11px] font-black text-rose-600';
+                                        }
+                                    };
+                                }
+                            }, 50);
+                        }
+                    } else if (fishNum > expectedSeq) {
+                        playSoundWrong();
+                        alert(`¡Ups! Toca primero el Pez #${expectedSeq} para seguir el orden estable.`);
+                    }
+                };
+                grid.appendChild(fishWrapper);
+            });
+
+            container.appendChild(grid);
+            container.appendChild(totalInputContainer);
+
+        } else if (scene.interactiveType === 'abstraction') {
+            counterBadge.innerText = 'Contadas: 0 / 5';
+            document.getElementById('sandbox-instruction').innerText = 'Toca los objetos diferentes para contar todo el grupo junto:';
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-5 gap-1 justify-items-center items-center w-full my-1';
+
+            const totalInputContainer = document.createElement('div');
+            totalInputContainer.className = 'mt-2 text-xs font-black text-slate-700 bg-slate-100 p-2.5 rounded-2xl cartoon-border text-center w-full flex flex-col items-center gap-1.5';
+            totalInputContainer.innerHTML = `
+                <span class="text-[11px] font-black text-slate-600">⭐ Toca las 5 criaturas variadas para activar la casilla:</span>
+                <input type="text" disabled placeholder="¿Total?" class="w-28 text-center font-black text-sm p-1.5 rounded-xl border-2 border-slate-300 bg-slate-200 text-slate-400 cursor-not-allowed">
+            `;
+
+            let counted = 0;
+            scene.items.forEach((item, idx) => {
+                const itemWrapper = document.createElement('div');
+                itemWrapper.className = 'cursor-pointer p-1 transition-transform hover:scale-105 active:scale-95 flex flex-col items-center';
+                itemWrapper.innerHTML = `
+                    <div class="item-card w-11 h-11 bg-white cartoon-border rounded-2xl flex flex-col items-center justify-center shadow-cartoon-sm">
+                        <span class="text-sm">${item.split(' ')[0]}</span>
+                    </div>
+                    <span class="badge-num text-[9px] font-black text-slate-500 mt-0.5">Tocar</span>
+                `;
+
+                itemWrapper.onclick = () => {
+                    playSoundBubble();
+                    if (!itemWrapper.dataset.counted) {
+                        itemWrapper.dataset.counted = 'true';
+                        counted++;
+                        const card = itemWrapper.querySelector('.item-card');
+                        const badge = itemWrapper.querySelector('.badge-num');
+                        card.className = 'item-card w-11 h-11 bg-cartoon-yellow cartoon-border rounded-2xl flex flex-col items-center justify-center shadow-cartoon-sm animate-bounce-soft';
+                        badge.className = 'badge-num text-[9px] font-black text-cartoon-purple';
+                        badge.innerText = `#${counted}`;
+                        counterBadge.innerText = `Contadas: ${counted} / 5`;
+
+                        if (counted === scene.items.length) {
+                            totalInputContainer.className = 'mt-2 text-xs font-black text-cartoon-deepblue bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full animate-bounce-soft shadow-cartoon-sm flex flex-col items-center gap-2';
+                            totalInputContainer.innerHTML = `
+                                <label class="text-xs font-black text-slate-900 uppercase">
+                                    🎨 ¡Abstracción comprobada! Escribe el total de objetos heterogéneos:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <input id="scene4-user-input" type="number" min="0" max="99" placeholder="¿Total?" 
+                                        class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                                    <button id="btn-check-scene4" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                                        Comprobar 🎯
+                                    </button>
+                                </div>
+                                <span id="scene4-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                            `;
+
+                            setTimeout(() => {
+                                const inputElem = document.getElementById('scene4-user-input');
+                                const btnCheck = document.getElementById('btn-check-scene4');
+                                const feedback = document.getElementById('scene4-feedback');
+                                if (btnCheck && inputElem) {
+                                    btnCheck.onclick = () => {
+                                        const val = parseInt(inputElem.value, 10);
+                                        if (val === 5) {
+                                            playSoundBubble();
+                                            feedback.innerText = '🎉 ¡GENIAL! Aunque sean diferentes, la cantidad total es 5.';
+                                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                                        } else {
+                                            playSoundWrong();
+                                            feedback.innerText = '❌ ¡Intenta escribir 5!';
+                                            feedback.className = 'text-[11px] font-black text-rose-600';
+                                        }
+                                    };
+                                }
+                            }, 50);
+                        }
+                    }
+                };
+                grid.appendChild(itemWrapper);
+            });
+
+            container.appendChild(grid);
+            container.appendChild(totalInputContainer);
+
+        } else if (scene.interactiveType === 'order_irrelevance') {
+            counterBadge.innerText = 'Contadas: 0 / 4';
+            document.getElementById('sandbox-instruction').innerText = 'Toca las conchas en CUALQUIER orden que desees:';
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-4 gap-2 justify-items-center items-center w-full my-1';
+
+            const totalInputContainer = document.createElement('div');
+            totalInputContainer.className = 'mt-2 text-xs font-black text-slate-700 bg-slate-100 p-2.5 rounded-2xl cartoon-border text-center w-full flex flex-col items-center gap-1.5';
+            totalInputContainer.innerHTML = `
+                <span class="text-[11px] font-black text-slate-600">🔀 Toca las 4 conchas para comprobar la cantidad:</span>
+                <input type="text" disabled placeholder="¿Total?" class="w-28 text-center font-black text-sm p-1.5 rounded-xl border-2 border-slate-300 bg-slate-200 text-slate-400 cursor-not-allowed">
+            `;
+
+            let counted = 0;
+            scene.items.forEach((item) => {
+                const shellWrapper = document.createElement('div');
+                shellWrapper.className = 'cursor-pointer p-1 transition-transform hover:scale-105 active:scale-95 flex flex-col items-center';
+                shellWrapper.innerHTML = `
+                    <div class="shell-card w-12 h-12 bg-cartoon-sand cartoon-border rounded-2xl flex items-center justify-center shadow-cartoon-sm">
+                        <span class="text-xl">🐚</span>
+                    </div>
+                    <span class="badge-num text-[10px] font-black text-slate-600 mt-1">Tocar</span>
+                `;
+
+                shellWrapper.onclick = () => {
+                    playSoundBubble();
+                    if (!shellWrapper.dataset.counted) {
+                        shellWrapper.dataset.counted = 'true';
+                        counted++;
+                        const card = shellWrapper.querySelector('.shell-card');
+                        const badge = shellWrapper.querySelector('.badge-num');
+                        card.className = 'shell-card w-12 h-12 bg-cartoon-coral text-white cartoon-border rounded-2xl flex items-center justify-center shadow-cartoon-sm animate-bounce-soft';
+                        badge.innerText = `#${counted}`;
+                        counterBadge.innerText = `Contadas: ${counted} / 4`;
+
+                        if (counted === scene.items.length) {
+                            totalInputContainer.className = 'mt-2 text-xs font-black text-cartoon-deepblue bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full animate-bounce-soft shadow-cartoon-sm flex flex-col items-center gap-2';
+                            totalInputContainer.innerHTML = `
+                                <label class="text-xs font-black text-slate-900 uppercase">
+                                    🔀 ¡Sin importar el orden! Escribe el total de conchas:
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <input id="scene5-user-input" type="number" min="0" max="99" placeholder="¿Total?" 
+                                        class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                                    <button id="btn-check-scene5" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                                        Comprobar 🎯
+                                    </button>
+                                </div>
+                                <span id="scene5-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                            `;
+
+                            setTimeout(() => {
+                                const inputElem = document.getElementById('scene5-user-input');
+                                const btnCheck = document.getElementById('btn-check-scene5');
+                                const feedback = document.getElementById('scene5-feedback');
+                                if (btnCheck && inputElem) {
+                                    btnCheck.onclick = () => {
+                                        const val = parseInt(inputElem.value, 10);
+                                        if (val === 4) {
+                                            playSoundBubble();
+                                            feedback.innerText = '🎉 ¡EXCELENTE! El orden de contar no cambia la suma total (4).';
+                                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                                        } else {
+                                            playSoundWrong();
+                                            feedback.innerText = '❌ ¡Recuerda que siguen siendo 4 conchas!';
+                                            feedback.className = 'text-[11px] font-black text-rose-600';
+                                        }
+                                    };
+                                }
+                            }, 50);
+                        }
+                    }
+                };
+                grid.appendChild(shellWrapper);
+            });
+
+            container.appendChild(grid);
+            container.appendChild(totalInputContainer);
+
+        } else if (scene.interactiveType === 'addition') {
+            let count = scene.baseCount || 3;
+            counterBadge.innerText = `Tanques: ${count}`;
+            document.getElementById('sandbox-instruction').innerText = 'Agrega tanques con el botón y escribe el resultado de la suma:';
+
+            const addBox = document.createElement('div');
+            addBox.className = 'flex flex-col items-center gap-3 w-full';
+            addBox.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span id="tank-visual-display" class="text-2xl font-black">🫧🫧🫧</span>
+                    <button id="btn-add-tank" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                        ➕ Agregar 1 Tanque
+                    </button>
+                </div>
+
+                <div class="bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full shadow-cartoon-sm flex flex-col items-center gap-2">
+                    <label class="text-xs font-black text-slate-900 uppercase">
+                        🫧 ¿3 tanques iniciales + 2 tanques agregados = cuántos en total?
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input id="scene6-user-input" type="number" min="0" max="99" placeholder="¿Total?" 
+                            class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                        <button id="btn-check-scene6" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                            Comprobar 🎯
+                        </button>
+                    </div>
+                    <span id="scene6-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                </div>
+            `;
+            container.appendChild(addBox);
+
+            document.getElementById('btn-add-tank').onclick = () => {
+                playSoundBubble();
+                count++;
+                counterBadge.innerText = `Tanques: ${count}`;
+                document.getElementById('tank-visual-display').innerText = '🫧'.repeat(count);
+            };
+
+            setTimeout(() => {
+                const inputElem = document.getElementById('scene6-user-input');
+                const btnCheck = document.getElementById('btn-check-scene6');
+                const feedback = document.getElementById('scene6-feedback');
+                if (btnCheck && inputElem) {
+                    btnCheck.onclick = () => {
+                        const val = parseInt(inputElem.value, 10);
+                        if (val === 5) {
+                            playSoundBubble();
+                            feedback.innerText = '🎉 ¡CORRECTO! 3 + 2 = 5 tanques de aire.';
+                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                        } else {
+                            playSoundWrong();
+                            feedback.innerText = '❌ Suma 3 + 2. El resultado es 5.';
+                            feedback.className = 'text-[11px] font-black text-rose-600';
+                        }
+                    };
+                }
+            }, 50);
+
+        } else if (scene.interactiveType === 'subtraction') {
+            let count = scene.baseCount || 5;
+            counterBadge.innerText = `Pesas: ${count}`;
+            document.getElementById('sandbox-instruction').innerText = 'Quita pesas con el botón y escribe el resultado de la resta:';
+
+            const subBox = document.createElement('div');
+            subBox.className = 'flex flex-col items-center gap-3 w-full';
+            subBox.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span id="anchor-visual-display" class="text-2xl font-black">⚓⚓⚓⚓⚓</span>
+                    <button id="btn-sub-anchor" class="bg-cartoon-coral hover:bg-red-400 text-white font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                        ➖ Quitar 1 Pesa
+                    </button>
+                </div>
+
+                <div class="bg-cartoon-yellow p-3 rounded-2xl cartoon-border text-center w-full shadow-cartoon-sm flex flex-col items-center gap-2">
+                    <label class="text-xs font-black text-slate-900 uppercase">
+                        ⚓ Si teníamos 5 pesas y quitamos 2 pesas (-2)... ¿cuántas quedan?
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <input id="scene7-user-input" type="number" min="0" max="99" placeholder="¿Total?" 
+                            class="w-24 text-center font-black text-base p-1.5 rounded-xl cartoon-border bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-cartoon-purple">
+                        <button id="btn-check-scene7" class="bg-cartoon-green hover:bg-emerald-400 text-black font-black text-xs px-3 py-2 rounded-xl cartoon-border shadow-cartoon-sm">
+                            Comprobar 🎯
+                        </button>
+                    </div>
+                    <span id="scene7-feedback" class="text-[11px] font-black min-h-[16px]"></span>
+                </div>
+            `;
+            container.appendChild(subBox);
+
+            document.getElementById('btn-sub-anchor').onclick = () => {
+                playSoundBubble();
+                if (count > 0) {
+                    count--;
+                    counterBadge.innerText = `Pesas: ${count}`;
+                    document.getElementById('anchor-visual-display').innerText = count > 0 ? '⚓'.repeat(count) : '✨ ¡LIBRE!';
+                }
+            };
+
+            setTimeout(() => {
+                const inputElem = document.getElementById('scene7-user-input');
+                const btnCheck = document.getElementById('btn-check-scene7');
+                const feedback = document.getElementById('scene7-feedback');
+                if (btnCheck && inputElem) {
+                    btnCheck.onclick = () => {
+                        const val = parseInt(inputElem.value, 10);
+                        if (val === 3) {
+                            playSoundBubble();
+                            feedback.innerText = '🎉 ¡CORRECTO! 5 - 2 = 3 pesas restantes.';
+                            feedback.className = 'text-[11px] font-black text-emerald-700';
+                        } else {
+                            playSoundWrong();
+                            feedback.innerText = '❌ Resta 5 - 2. El resultado es 3.';
+                            feedback.className = 'text-[11px] font-black text-rose-600';
+                        }
+                    };
+                }
+            }, 50);
+
+        } else if (scene.interactiveType === 'minigame_bubbles') {
+            counterBadge.innerText = 'Puntos: 0';
+            document.getElementById('sandbox-instruction').innerText = '¡MINIJUEGO UNLOCKED! Toca las burbujas flotantes para sumar puntos:';
+
+            let score = 0;
+            const bubbleBox = document.createElement('div');
+            bubbleBox.className = 'flex gap-2 justify-center py-2';
+            
+            for(let i = 1; i <= 4; i++) {
+                const b = document.createElement('button');
+                b.className = 'w-10 h-10 bg-cartoon-blue text-black font-black rounded-full cartoon-border shadow-cartoon-sm animate-bubble flex items-center justify-center';
+                b.innerText = i;
+                b.onclick = () => {
+                    playSoundBubble();
+                    score += i;
+                    counterBadge.innerText = `Puntos: ${score}`;
+                    b.style.transform = 'scale(1.2)';
+                    setTimeout(() => b.style.transform = 'scale(1)', 200);
+                };
+                bubbleBox.appendChild(b);
+            }
+            container.appendChild(bubbleBox);
+
+        } else {
+            counterBadge.innerText = `Elementos: ${scene.items ? scene.items.length : 0}`;
+            document.getElementById('sandbox-instruction').innerText = 'Toca los objetos para verificar la colección:';
+
+            const grid = document.createElement('div');
+            grid.className = 'flex flex-wrap gap-1.5 justify-center w-full';
+
+            if (scene.items) {
+                scene.items.forEach(item => {
+                    const chip = document.createElement('button');
+                    chip.className = 'bg-white text-slate-900 font-black text-xs px-2.5 py-1 rounded-xl cartoon-border shadow-cartoon-sm';
+                    chip.innerText = item;
+                    chip.onclick = () => playSoundBubble();
+                    grid.appendChild(chip);
+                });
+            }
+            container.appendChild(grid);
+        }
+    }
+
+    function resetCurrentSandbox() {
+        playSoundBubble();
+        renderSandbox(sceneTree[gameState.currentSceneId]);
+    }
+
+    let canvas, ctx;
+    let isDrawing = false;
+    let currentColor = '#FFDE59';
+
+    function initBoardCanvas() {
+        canvas = document.getElementById('board-canvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width || 300;
+        canvas.height = rect.height || 112;
+
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = currentColor;
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseleave', stopDraw);
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+
+        canvas.addEventListener('touchend', stopDraw);
+    }
+
+    function getCanvasCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        const coords = getCanvasCoords(e);
+        ctx.beginPath();
+        ctx.moveTo(coords.x, coords.y);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const coords = getCanvasCoords(e);
+        ctx.lineTo(coords.x, coords.y);
+        ctx.stroke();
+    }
+
+    function stopDraw() {
+        if (isDrawing) {
+            ctx.closePath();
+            isDrawing = false;
+        }
+    }
+
+    function setBoardColor(color) {
+        playSoundBubble();
+        currentColor = color;
+        if (ctx) ctx.strokeStyle = currentColor;
+    }
+
+    function clearBoardCanvas() {
+        playSoundBubble();
+        if (ctx && canvas) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function toggleDatabankModal(show) {
+        playSoundBubble();
+        const modal = document.getElementById('databank-modal');
+        if (show) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
+    window.addEventListener('load', () => {
+        initBoardCanvas();
+        window.addEventListener('resize', () => {
+            initBoardCanvas();
+        });
+    });
+</script>
+</body>
+</html>
